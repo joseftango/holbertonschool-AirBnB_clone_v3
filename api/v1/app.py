@@ -1,21 +1,24 @@
 #!/usr/bin/python3
-"""module named app"""
-from flask import Flask
+"""app.py to connect to API"""
+from os import getenv
 from models import storage
 from api.v1.views import app_views
-from os import getenv
-from flask_cors import CORS
+from flask import Flask, jsonify
 
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
-CORS(app, origins="0.0.0.0")
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """closes the storage on teardown"""
+def teardown_appcontext(code):
+    """teardown_appcontext"""
     storage.close()
+
+
+@app.errorhandler(404)
+def invalid_route(err):
+    return jsonify({"error": "Not found"})
 
 
 if __name__ == "__main__":
