@@ -17,7 +17,7 @@ def teardown_appcontext(code):
 
 
 @app.errorhandler(404)
-def invalid_route(err):
+def invalid_route(e):
     return jsonify({"error": "Not found"})
 
 
