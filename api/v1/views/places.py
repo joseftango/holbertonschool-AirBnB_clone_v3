@@ -9,21 +9,27 @@ from api.v1.views import app_views
 
 
 @app_views.route("cities/<city_id>/places", strict_slashes=False,
-                 methods=["GET", "POST"])
+                 methods=["GET"])
 def get_places(city_id=None):
     """retrive list of all places objects
     linked with a specific City instance"""
     my_city = storage.get(City, city_id)
     if not my_city:
         abort(404)
-    if request.method == "GET":
-        li_places = []
-        my_places = storage.all(Place)
-        for v in my_places.values():
-            if v.city_id == city_id:
-                li_places.append(v.to_dict())
-        return jsonify(li_places)
+    li_places = []
+    my_places = storage.all(Place)
+    for v in my_places.values():
+        if v.city_id == city_id:
+            li_places.append(v.to_dict())
+    return jsonify(li_places)
 
+@app_views.route("cities/<city_id>/places", strict_slashes=False,
+                 methods=["POST"])
+def new_place(city_id=None):
+    """create a new place with the
+    given data in request body"""
+    if storage.get(City, city_id):
+        abort(404)
     data_place = request.get_json()
     if not data_place:
         abort(400, "Not a JSON")
@@ -44,7 +50,7 @@ def get_places(city_id=None):
 
 
 @app_views.route("/places/<place_id>", strict_slashes=False,
-                 methods=["GET", "DELETE", "PUT"])
+                 methods=["GET", "DELETE"])
 def get_place_by_id(place_id=None):
     """retrive a Place object matching with id"""
     my_place = storage.get(Place, place_id)
@@ -57,6 +63,13 @@ def get_place_by_id(place_id=None):
         storage.save()
         return jsonify({}), 200
 
+
+@app_views.route("/places/<place_id>", strict_slashes=False, methods=["PUT"])
+def update_place(place_id=None):
+    """update the specific Place object and return it"""
+    my_place = storage.get(Place, place_id)
+    if not my_place:
+        abort(404)
     data_place = request.get_json()
     if not data_place:
         abort(404, "Not a JSON")
