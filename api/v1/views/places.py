@@ -23,6 +23,7 @@ def get_places(city_id=None):
             li_places.append(v.to_dict())
     return jsonify(li_places)
 
+
 @app_views.route("cities/<city_id>/places", strict_slashes=False,
                  methods=["POST"])
 def new_place(city_id=None):
