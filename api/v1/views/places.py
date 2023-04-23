@@ -46,7 +46,7 @@ def new_place(city_id=None):
         setattr(new_place, k, v)
     storage.new(new_place)
     storage.save()
-    return jsonify(new_place.to_dict())
+    return jsonify(new_place.to_dict()), 201
 
 
 @app_views.route("/places/<place_id>", strict_slashes=False,
