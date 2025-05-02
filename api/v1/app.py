@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 ''' main file of our api application '''
-from flask import Flask
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
 from os import getenv
@@ -11,9 +11,14 @@ app.register_blueprint(app_views)
 
 
 @app.teardown_appcontext
-def not_found(execption):
+def teardown(execption):
     """close the storage instance"""
     storage.close()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Not found"}), 404
 
 
 if __name__ == "__main__":
@@ -26,4 +31,4 @@ if __name__ == "__main__":
     else:
         Port = 5000
 
-    app.run(host=Host, port=Port, threaded=True) 
+    app.run(host=Host, port=Port, threaded=True)
