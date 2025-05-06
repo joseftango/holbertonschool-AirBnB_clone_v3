@@ -20,12 +20,12 @@ def get_states():
 def post_states():
     if not request.get_json():
         return jsonify({'message': 'Not a JSON'}), 400
-    if 'name' not in request.get_json():
+    elif 'name' not in request.get_json():
         return jsonify({'message': 'Missing name'}), 400
     d = request.get_json()
     new_state = State(**d)
     new_state.save()
-    return jsonify(new_state.to_dict()), 200
+    return jsonify(new_state.to_dict()), 201
 
 
 @app_views.route('/states/<state_id>', methods=['GET', 'DELETE', 'PUT'])
@@ -41,10 +41,10 @@ def one_state(state_id):
         storage.save()
         return jsonify({}), 200
     else:
-        if not request.get_json():
+        data = request.get_json()
+        if not data or not type(data) is dict:
             return jsonify({'message': 'Not a JSON'}), 400
 
-        data = request.get_json()
         my_state = storage.get(State, state_id)
 
         if my_state:
