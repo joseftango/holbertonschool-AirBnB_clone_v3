@@ -19,9 +19,9 @@ def get_states():
 @app_views.route('/states/', methods=['POST'])
 def post_states():
     if not request.get_json():
-        return jsonify({'message': 'Not a JSON'}), 400
+        abort(400, description='Not a JSON')
     elif 'name' not in request.get_json():
-        return jsonify({'message': 'Missing name'}), 400
+        abort(400, description='Missing name')
     d = request.get_json()
     new_state = State(**d)
     new_state.save()
