@@ -43,7 +43,7 @@ def one_state(state_id):
     else:
         data = request.get_json()
         if not data or not type(data) is dict:
-            return jsonify({'message': 'Not a JSON'}), 400
+            abort(400, description='Not a JSON')
 
         my_state = storage.get(State, state_id)
 
