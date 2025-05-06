@@ -6,8 +6,8 @@ from models import storage
 from models.state import State
 
 
-@app_views.route('/states', methods=['GET', 'POST'])
-def states():
+@app_views.route('/states', methods=['GET'])
+def get_states():
     '''retrives states'''
     if request.method == 'GET':
         states = []
@@ -15,15 +15,17 @@ def states():
             states.append(v.to_dict())
         return jsonify(states)
 
-    if request.method == 'POST':
-        if not request.get_json():
-            return jsonify({'message': 'Not a JSON'}), 400
-        if 'name' not in request.get_json():
-            return jsonify({'message': 'Missing name'}), 400
-        d = request.get_json()
-        new_state = State(**d)
-        new_state.save()
-        return jsonify(new_state.to_dict()), 200
+
+@app_views.route('/states/', methods=['POST'])
+def post_states():
+    if not request.get_json():
+        return jsonify({'message': 'Not a JSON'}), 400
+    if 'name' not in request.get_json():
+        return jsonify({'message': 'Missing name'}), 400
+    d = request.get_json()
+    new_state = State(**d)
+    new_state.save()
+    return jsonify(new_state.to_dict()), 200
 
 
 @app_views.route('/states/<state_id>', methods=['GET', 'DELETE', 'PUT'])
@@ -45,10 +47,13 @@ def one_state(state_id):
         data = request.get_json()
         my_state = storage.get(State, state_id)
 
-        for k, v in data.items():
-            if k in ['id', 'created_at', 'updated_at']:
-                continue
-            else:
-                setattr(my_state, k, v)
-        storage.save()
-        return jsonify(my_state.to_dict()), 200
+        if my_state:
+            for k, v in data.items():
+                if k in ['id', 'created_at', 'updated_at']:
+                    continue
+                else:
+                    setattr(my_state, k, v)
+            storage.save()
+            return jsonify(my_state.to_dict()), 200
+        else:
+            abort(404)
