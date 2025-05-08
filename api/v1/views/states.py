@@ -18,7 +18,7 @@ def get_states():
 
 @app_views.route('/states/', methods=['POST'])
 def post_states():
-    if not request.get_json():
+    if not request.get_json(silent=True):
         abort(400, description='Not a JSON')
     elif 'name' not in request.get_json():
         abort(400, description='Missing name')
@@ -43,7 +43,7 @@ def one_state(state_id):
         return jsonify({}), 200
     else:
         my_state = storage.get(State, state_id)
-        data = request.get_json()
+        data = request.get_json(silent=True)
         if not my_state:
             abort(404)
         elif not data or not type(data) is dict:
