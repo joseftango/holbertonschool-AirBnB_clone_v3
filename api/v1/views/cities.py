@@ -52,7 +52,7 @@ def city_obj(city_id):
         storage.save()
         return jsonify({}), 200
     else:
-        data = request.get_json()
+        data = request.get_json(silent=True)
         if data:
             for k, v in data.items():
                 if k in ['id', 'state_id', 'created_at', 'updated_at']:
