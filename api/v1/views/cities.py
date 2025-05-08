@@ -22,14 +22,16 @@ def state_related_cities(state_id):
 def new_city_in_state(state_id):
     '''creates a new City related to a specific State'''
     my_state = storage.get(State, state_id)
-    data = request.get_json()
 
     if not my_state:
         abort(404)
-    if not data:
-        abort(400, description='Not a JSON')
-    elif 'name' not in data:
-        abort(400, description='Missing name')
+
+    data = request.get_json(silent=True)
+
+    if data is None:
+        return abort(400, "Not a JSON")
+    if "name" not in data:
+        return abort(400, "Missing name")
     else:
         data['state_id'] = my_state.id
         my_city = City(**data)
