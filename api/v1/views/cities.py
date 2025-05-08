@@ -6,27 +6,35 @@ from models import storage
 from models.state import State
 from models.city import City
 
-@app_views.route('/states/<state_id>/cities', methods=['GET', 'POST'])
+
+@app_views.route('/states/<state_id>/cities', methods=['GET'])
 def state_related_cities(state_id):
     '''Retrieves the list of all City objects of
     specific State or creates a city'''
     my_state = storage.get(State, state_id)
     if not my_state:
         abort(404)
-    if request.method == 'GET':
-        related_cities = list(map(lambda obj: obj.to_dict(), my_state.cities))
-        return jsonify(related_cities)
+    related_cities = list(map(lambda obj: obj.to_dict(), my_state.cities))
+    return jsonify(related_cities)
+
+
+@app_views.route('/states/<state_id>/cities/', methods=['POST'])
+def new_city_in_state(state_id):
+    '''creates a new City related to a specific State'''
+    my_state = storage.get(State, state_id)
+    data = request.get_json()
+
+    if not my_state:
+        abort(404)
+    if not data:
+        abort(400, description='Not a JSON')
+    elif 'name' not in data:
+        abort(400, description='Missing name')
     else:
-        data = request.get_json()
-        if not data:
-            abort(400, description='Not a JSON')
-        elif 'name' not in data:
-            abort(400, description='Missing name')
-        else:
-            data['state_id'] = my_state.id
-            my_city = City(**data)
-            my_city.save()
-            return jsonify(my_city.to_dict()), 201
+        data['state_id'] = my_state.id
+        my_city = City(**data)
+        my_city.save()
+        return jsonify(my_city.to_dict()), 201
 
 
 @app_views.route('/cities/<city_id>', methods=['GET', 'DELETE', 'PUT'])
