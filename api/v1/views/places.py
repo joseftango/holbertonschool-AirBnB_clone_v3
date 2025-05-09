@@ -62,7 +62,7 @@ def get_delete_place(place_id):
     else:
         data = request.get_json(silent=True)
         if not data:
-            abort(404, description='Not a JSON')
+            abort(400, description='Not a JSON')
 
         for k, v in data.items():
             if k in ['id', 'user_id', 'city_id', 'created_at', 'updated_at']:
