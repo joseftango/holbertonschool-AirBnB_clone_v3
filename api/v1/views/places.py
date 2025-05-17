@@ -80,6 +80,7 @@ def search_places():
     ''' retrieves all Place objects depending
     of the JSON in the body of the request '''
     my_places = storage.all(Place).values()
+    my_places = list(map(lambda obj: obj.to_dict(), my_places))
     data = request.get_json(silent=True)
     cities_objs = []
     result_places = []
@@ -87,8 +88,11 @@ def search_places():
     if data is None:
         abort(400, description='Not a JSON')
 
-    if data == {} or all(not data[key] for key in ['states', 'cities']):
-        my_places = list(map(lambda obj: obj.to_dict(), my_places))
+    if not data or 'states' not in data and 'cities' not in data:
+        return jsonify(my_places)
+
+    if 'states' in data and not data['states'] and\
+            'cities' in data and not data['cities']:
         return jsonify(my_places)
 
     if 'cities' in data and data['cities']:
