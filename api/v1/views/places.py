@@ -79,8 +79,7 @@ def get_delete_place(place_id):
 def search_places():
     ''' retrieves all Place objects depending
     of the JSON in the body of the request '''
-    my_places = storage.all(Place).values()
-    my_places = list(map(lambda obj: obj.to_dict(), my_places))
+    my_places = list(storage.all(Place).values())
     data = request.get_json(silent=True)
     cities_objs = []
     result_places = []
@@ -88,29 +87,30 @@ def search_places():
     if data is None:
         abort(400, description='Not a JSON')
 
-    if not data or 'states' not in data and 'cities' not in data:
-        return jsonify(my_places)
+    elif not data or 'states' not in data and 'cities' not in data:
+        result_places = my_places
 
-    if 'states' in data and not data['states'] and\
+    elif 'states' in data and not data['states'] and\
             'cities' in data and not data['cities']:
-        return jsonify(my_places)
+        result_places = my_places
 
-    if 'cities' in data and data['cities']:
-        for city_id in data['cities']:
-            city_obj = storage.get(City, city_id)
-            cities_objs.append(city_obj)
+    else:
+        if 'cities' in data and data['cities']:
+            for city_id in data['cities']:
+                city_obj = storage.get(City, city_id)
+                cities_objs.append(city_obj)
 
-    if 'states' in data and data['states']:
-        for state_id in data['states']:
-            state_obj = storage.get(State, state_id)
-            cities_objs.extend(state_obj.cities)
+        if 'states' in data and data['states']:
+            for state_id in data['states']:
+                state_obj = storage.get(State, state_id)
+                cities_objs.extend(state_obj.cities)
 
-    cities_objs = list(set(cities_objs))
+        cities_objs = list(set(cities_objs))
 
-    for city in cities_objs:
-        result_places.extend(city.places)
+        for city in cities_objs:
+            result_places.extend(city.places)
 
-    result_places = list(set(result_places))
+        result_places = list(set(result_places))
 
     if 'amenities' in data and data['amenities']:
         for place in result_places:
@@ -123,4 +123,5 @@ def search_places():
                     del place.amenities
 
     final_res = list(map(lambda obj: obj.to_dict(), result_places))
+    print(f'--------------------------: {len(final_res)}')
     return jsonify(final_res)
