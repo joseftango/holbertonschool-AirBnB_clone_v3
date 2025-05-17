@@ -89,14 +89,12 @@ def search_places():
 
     elif not data or 'states' not in data and 'cities' not in data:
         result_places = my_places
-        print('------- first elif entred')
 
     elif 'states' in data and not data['states'] and\
             'cities' in data and not data['cities']:
         result_places = my_places
 
     else:
-        print('----------else entred')
         if 'cities' in data and data['cities']:
             for city_id in data['cities']:
                 city_obj = storage.get(City, city_id)
@@ -115,7 +113,6 @@ def search_places():
         result_places = list(set(result_places))
 
     if 'amenities' in data and data['amenities']:
-        print('-------- final if entred')
         for place in result_places:
             for amenity_id in data['amenities']:
                 my_amenity = storage.get(Amenity, amenity_id)
@@ -126,5 +123,4 @@ def search_places():
                     del place.amenities
 
     final_res = list(map(lambda obj: obj.to_dict(), result_places))
-    print(f'--------------------------: {len(final_res)}')
     return jsonify(final_res)
