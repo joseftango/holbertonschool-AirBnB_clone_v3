@@ -91,12 +91,12 @@ def search_places():
         my_places = list(map(lambda obj: obj.to_dict(), my_places))
         return jsonify(my_places)
 
-    if data['cities']:
+    if 'cities' in data and data['cities']:
         for city_id in data['cities']:
             city_obj = storage.get(City, city_id)
             cities_objs.append(city_obj)
 
-    if data['states']:
+    if 'states' in data and data['states']:
         for state_id in data['states']:
             state_obj = storage.get(State, state_id)
             cities_objs.extend(state_obj.cities)
