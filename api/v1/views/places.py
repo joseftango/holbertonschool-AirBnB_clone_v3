@@ -75,7 +75,7 @@ def get_delete_place(place_id):
         return jsonify(my_place.to_dict()), 200
 
 
-@app_views.route('/places_search', methods=['POST'])
+@app_views.route('/places_search', methods=['POST'], strict_slashes=False)
 def search_places():
     ''' retrieves all Place objects depending
     of the JSON in the body of the request '''
@@ -123,4 +123,5 @@ def search_places():
                     del place.amenities
 
     final_res = list(map(lambda obj: obj.to_dict(), result_places))
+    print(len(final_res))
     return jsonify(final_res)
