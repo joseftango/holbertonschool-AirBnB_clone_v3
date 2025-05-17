@@ -6,6 +6,8 @@ from models import storage
 from models.place import Place
 from models.city import City
 from models.user import User
+from models.state import State
+from models.amenity import Amenity
 
 
 @app_views.route('/cities/<city_id>/places', methods=['GET'])
@@ -71,3 +73,50 @@ def get_delete_place(place_id):
                 setattr(my_place, k, v)
         my_place.save()
         return jsonify(my_place.to_dict()), 200
+
+
+@app_views.route('/places_search', methods=['POST'])
+def search_places():
+    ''' retrieves all Place objects depending
+    of the JSON in the body of the request '''
+    my_places = storage.all(Place).values()
+    data = request.get_json(silent=True)
+    cities_objs = []
+    result_places = []
+
+    if data is None:
+        abort(400, description='Not a JSON')
+
+    if data == {} or all(not data[key] for key in ['states', 'cities']):
+        my_places = list(map(lambda obj: obj.to_dict(), my_places))
+        return jsonify(my_places)
+
+    if data['cities']:
+        for city_id in data['cities']:
+            city_obj = storage.get(City, city_id)
+            cities_objs.append(city_obj)
+
+    if data['states']:
+        for state_id in data['states']:
+            state_obj = storage.get(State, state_id)
+            cities_objs.extend(state_obj.cities)
+
+    cities_objs = list(set(cities_objs))
+
+    for city in cities_objs:
+        result_places.extend(city.places)
+
+    result_places = list(set(result_places))
+
+    if 'amenities' in data and data['amenities']:
+        for place in result_places:
+            for amenity_id in data['amenities']:
+                my_amenity = storage.get(Amenity, amenity_id)
+                if my_amenity not in place.amenities:
+                    result_places.remove(place)
+                    break
+                else:
+                    del place.amenities
+
+    final_res = list(map(lambda obj: obj.to_dict(), result_places))
+    return jsonify(final_res)
